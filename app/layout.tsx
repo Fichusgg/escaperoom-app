@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ocean Rescue Escape Room",
-  description: "Six stations. Six letters. Crack the code and save the ocean.",
+  title: "Ocean Pollution — Health Code",
+  description: "Collect letters from 6 stations and enter the secret word.",
 };
 
 export default function RootLayout({
