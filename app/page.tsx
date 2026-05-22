@@ -61,6 +61,18 @@ export default function Home() {
     setTimerState("ended");
   }, [timerState, startAt]);
 
+  const [penaltyPulse, setPenaltyPulse] = useState(false);
+  const applyPenalty = useCallback(
+    (seconds: number) => {
+      if (timerState !== "running" || startAt === null) return;
+      // Shift the start time backwards so elapsed grows (remaining shrinks)
+      setStartAt((s) => (s === null ? s : s - seconds * 1000));
+      setPenaltyPulse(true);
+      window.setTimeout(() => setPenaltyPulse(false), 500);
+    },
+    [timerState, startAt],
+  );
+
   const press = useCallback(
     (k: string) => {
       if (done) return;
@@ -191,13 +203,20 @@ export default function Home() {
             {/* Timer */}
             <div className="mt-6 flex justify-center">
               <div
-                className={`font-mono text-5xl sm:text-6xl font-bold tabular-nums ${
-                  expired
+                className={`font-mono text-5xl sm:text-6xl font-bold tabular-nums transition-colors ${
+                  penaltyPulse
+                    ? "text-rose-400"
+                    : expired
                     ? "text-rose-300"
                     : lowTime
                     ? "text-amber-300"
                     : "text-cyan-50"
                 }`}
+                style={
+                  penaltyPulse
+                    ? { animation: "wrong-shake 400ms ease-in-out" }
+                    : undefined
+                }
                 role="timer"
                 aria-label={`Time remaining ${fmt(remaining)}`}
               >
@@ -263,7 +282,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="mt-6 flex justify-center gap-3">
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
               <button
                 onClick={startTimer}
                 disabled={timerState === "running"}
@@ -277,6 +296,14 @@ export default function Home() {
                 className="rounded-lg border border-cyan-300/40 bg-transparent px-5 py-2 text-sm font-semibold text-cyan-50 hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 End
+              </button>
+              <button
+                onClick={() => applyPenalty(10)}
+                disabled={timerState !== "running"}
+                aria-label="Apply 10 second penalty"
+                className="rounded-lg bg-rose-500/90 px-5 py-2 text-sm font-semibold text-white hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                −10s penalty
               </button>
             </div>
           </>
